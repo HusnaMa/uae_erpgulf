@@ -1,186 +1,303 @@
-## UAE E‑Invoicing Integration
+## UAE E-Invoicing Integration for ERPNext
 
-This repository provides an ERPNext / Frappe-based implementation for UAE E‑Invoicing, aligned with the upcoming UAE Federal Tax Authority (FTA) e‑invoicing framework and UBL 2.1 standards.
+A Frappe / ERPNext application for generating UAE E-Invoicing-ready invoice data, aligned with the upcoming UAE Federal Tax Authority (FTA) e-invoicing framework and UBL 2.1 standards.
 
-The solution focuses on:
+This app is designed to help ERPNext users prepare structured invoice payloads, validate UAE VAT-related requirements, and support future API-based invoice clearance and reporting workflows.
 
-Generating UAE‑compliant invoice data (UBL XML‑ready)
+### Overview
 
-Enforcing VAT, HS/SAC, and legal validation rules
+The UAE E-Invoicing Integration app provides a configurable foundation for UAE-compliant e-invoicing inside ERPNext.
 
-Preparing invoices for future FTA clearance & reporting workflows
+### It focuses on:
 
-⚠️ Note: As of now, UAE e‑invoicing is in a phased rollout. This implementation is designed to be future‑proof, configurable, and aligned with published FTA and PEPPOL‑style standards.
+• Generating UAE-compliant invoice data
+• Preparing structured JSON payloads for future XML / UBL 2.1 mapping
+• Validating VAT, TRN, HS Code, SAC Code, and invoice rules
+• Supporting Sales Invoices, Credit Notes, and self-billed documents
+• Preparing ERPNext invoices for future FTA clearance and reporting workflows
 
----
+> Note
+>
+> UAE e-invoicing is currently being rolled out in phases. This implementation is designed to be future-ready, configurable, and aligned with published UAE FTA and PEPPOL-style standards.
+>
+> At the current stage, the structured invoice JSON generation layer is implemented. FTA submission and full clearance workflow will be added in future phases.
 
-### ✨ Features
+### Features
+• Sales Invoice and Credit Note support
+• VAT category and tax breakdown handling
+• HS Code validation for goods
+• SAC Code validation for services
+• Invoice Transaction Type Code support
+• Payment Means Code support
+• Legal Entity and Registration Identifier handling
+• Customer and Supplier identification blocks
+• Structured JSON generation
+• UBL 2.1-compatible mapping structure
+• OAuth2 authentication preparation
+• API configuration fields
+• Participant details fetch support
+• Webhook-ready design for real-time invoice status updates
+• Designed for ERPNext v16+
 
-✅ Sales Invoice & Credit Note support
+### Supported Document Types
+# Sales / Accounts Receivable
 
-✅ VAT category & tax breakdown handling
+| Code | Document Type |
+| --- | --- |
+| 380 | Commercial Invoice |
+| 480 | Out of Scope Invoice |
+| 381 | Credit Note - Taxable |
+| 81 | Credit Note - Out of Scope |
 
-✅ HS Code (Goods) & SAC Code (Services) validation
+# Purchase / Accounts Payable
 
-✅ Invoice Transaction Type Codes (Standard, Credit, Debit, Deemed Supply, etc.)
+| Code | Document Type |
+| --- | --- |
+| 389 | Self-Billed Invoice |
+| 361 | Self-Billed Credit Note |
 
-✅ Payment Means Codes (Cash, Card, Bank Transfer, etc.)
+### Validation Highlights
 
-✅ Legal Entity & Registration Identifier handling
+The app includes validation rules to ensure invoice data is structured correctly before generation.
 
-✅ Customer & Supplier identification blocks
+## Key validations include:
 
-✅ Structured JSON → XML mapping (UBL 2.1 compatible)
+• Quantity must be greater than zero
+• Mandatory tax category must be present
+• Credit Notes must have a valid reference invoice
+• Legal identifiers must be configured before submission
+• VAT / TRN details must be available where required
+• HS Code is required for goods
+• SAC Code is required for services
+• Decimal precision is handled using ROUNDHALFUP
+• Invoice transaction type must be valid
+• Payment means code must be valid
 
-✅ Designed for ERPNext v16+
+## Installation
 
----
-
-## 📂 Supported Document Types
-
-### Sales (Accounts Receivable)
-
-* **380** – Commercial Invoice
-* **480** – Out of Scope Invoice
-* **381** – Credit Note (Taxable)
-* **81** – Credit Note (Out of Scope)
-
-### Purchase (Accounts Payable)
-
-* **389** – Self-Billed Invoice
-* **361** – Self-Billed Credit Note
-
----
-
-
-#### 🧪 Validation Highlights
-
-✔ Quantity must be greater than zero
-
-✔ Mandatory tax category present
-
-✔ Correct invoice reference for Credit Notes
-
-✔ Legal identifiers validated before submission
-
-✔ Decimal precision handled using ROUND_HALF_UP
-
----
-
-
-### 📦 Installation
-bench get-app uae_erpgulf https://github.com/your-org/uae_erpgulf.git
-bench --site yoursite.local install-app uae_erpgulf
-
----
+Get the app from your repository:
+bench get-app uaeerpgulf https://github.com/your-org/uaeerpgulf.git
 
 
-## ⚙️ Configuration
+Install the app on your site:
+bench --site yoursite.local install-app uaeerpgulf
 
-### 1. Enable E-Invoicing
+
+Run migrations:
+bench --site yoursite.local migrate
+
+
+Restart bench:
+bench restart
+
+
+## Configuration
+Enable UAE E-Invoicing
 
 Go to:
 
 Company → UAE E-Invoicing
 
+
 Enable:
-☑ UAE E-Invoice Enabled
+
+UAE E-Invoice Enabled
 
 
-### 2. API Setup
+Make sure the company has the correct legal and tax details configured.
 
-Provide the following:
+## API Setup
 
-* Base URL
-* Participant ID
-* X-Flick-Auth-Key
+Configure the API connection details.
 
----
+Required fields:
 
-### 3. Authentication
+• Base URL
+• Participant ID
+• X-Flick-Auth-Key
 
-* Verify Token
-* Generate OAuth2 Access Token
-* Store and reuse token until expiry
+These details are used for connecting with the external e-invoicing API service.
 
----
+## Authentication
 
-### 4. Fetch Participant Details
+The app is designed to support OAuth2-based authentication.
 
-* Retrieves VAT/TRN and business details
-* Ensures proper registration
+### Authentication flow:
 
----
+Verify token
+Generate OAuth2 access token
+Store token securely
+Reuse token until expiry
+Regenerate token when expired
 
-## 🔄 Invoice Flow
+### Fetch Participant Details
 
-1. User creates Sales Invoice
-2. System validates configuration
-3. Invoice payload is generated
-4. Authentication using OAuth2
-5. Invoice sent to API (Flick)
-6. Forwarded to FTA
-7. Response stored in ERPNext
+The participant details flow retrieves business registration information such as:
 
----
+• VAT / TRN
+• Business legal name
+• Registration details
+• Participant information
+• Address and identification details
 
-## 🔔 Webhooks (Real-Time Updates)
+This helps ensure the company is properly registered and ready for invoice submission workflows.
 
-The system listens for:
+## Invoice Flow
 
-* Invoice Submitted
-* Invoice Validated
-* Invoice Accepted
-* Invoice Rejected
-* Invoice Delivered
+The expected UAE e-invoicing flow is:
 
----
+User creates a Sales Invoice in ERPNext
+System validates UAE E-Invoicing configuration
+System validates invoice data
+Invoice payload is generated
+Authentication is performed using OAuth2
+Invoice is sent to the configured API provider
+API provider forwards invoice data to the FTA
+Response is received and stored in ERPNext
 
-## 🛠️ Tech Stack
+## flowchart TD
+    A[Create Sales Invoice] --> B[Validate Configuration]
+    B --> C[Validate Invoice Data]
+    C --> D[Generate Invoice Payload]
+    D --> E[OAuth2 Authentication]
+    E --> F[Send to API Provider]
+    F --> G[Forward to FTA]
+    G --> H[Store Response in ERPNext]
+`
 
-* ERPNext / Frappe
-* REST APIs
-* OAuth2 Authentication
-* Webhooks
+## Webhooks
+
+The app is designed to listen for real-time invoice status updates using webhooks.
+
+Supported webhook events include:
+
+• Invoice Submitted
+• Invoice Validated
+• Invoice Accepted
+• Invoice Rejected
+• Invoice Delivered
+
+Webhook responses can be used to update invoice status inside ERPNext.
+
+## Output Formats
+
+Currently supported output:
+
+• Structured Invoice JSON
+
+Planned output:
+
+• UBL 2.1-compatible XML
+• FTA-ready invoice submission payload
+• API clearance response mapping
+
+> Current Status
+>
+> Only the structured JSON generation layer is currently implemented. FTA submission and full clearance workflows are not yet completed and will be added in future phases.
+
+## Tech Stack
+• ERPNext
+• Frappe Framework
+• Python
+• REST APIs
+• OAuth2 Authentication
+• Webhooks
+• JSON payload generation
+• UBL 2.1-compatible data structure
+
+## App Structure
+
+Typical app structure:
+
+`text
+uaeerpgulf/
+├── uaeerpgulf/
+│   ├── hooks.py
+│   ├── modules.txt
+│   ├── patches.txt
+│   └── uaeerpgulf/
+│       ├── doctype/
+│       ├── api/
+│       ├── utils/
+│       └── validations/
+├── README.md
+├── pyproject.toml
+└── license.txt
+`
+
+## Key Modules
+
+The app may include modules for:
+
+• UAE E-Invoicing Settings
+• Invoice JSON generation
+• VAT validation
+• HS / SAC code validation
+• Customer and supplier mapping
+• Legal identifier handling
+• API authentication
+• Participant detail fetch
+• Webhook handling
+• API response storage
+
+## Important Notes
+
+Before using the app, ensure that:
+
+• Company VAT / TRN details are correct
+• Customer VAT / TRN details are maintained where applicable
+• Item HS Codes are configured for goods
+• SAC Codes are configured for services
+• Tax templates are correctly mapped
+• API credentials are kept secure
+• Invoice data follows the required structured format
+• Credit Notes are linked to their original invoices
+
+## Benefits
+
+Using this app can help businesses:
+
+• Improve UAE VAT compliance readiness
+• Reduce manual invoice preparation work
+• Standardize invoice data
+• Improve accuracy and transparency
+• Prepare for future UAE FTA e-invoicing requirements
+• Maintain structured invoice records inside ERPNext
+• Support faster invoice processing workflows
 
 
----
+## Planned enhancements include:
 
-### 📤 Output Formats
+• Full UBL 2.1 XML generation
+• FTA clearance submission
+• API response handling
+• Invoice status tracking
+• Advanced webhook processing
+• Debit Note support
+• Purchase invoice self-billing enhancements
+• PEPPOL-compatible document exchange
+• Additional validation rules based on final UAE FTA specifications
 
-✅ Structured Invoice JSON
+## References
+• UAE Federal Tax Authority
+• UBL 2.1 Specification
+• PEPPOL BIS Billing 3.0
 
-⚠️ Note: Only the JSON generation layer is currently implemented.  FTA submission are not yet completed and will be added in future phases.
+## Compatibility
 
----
+| Component | Version |
+| --- | --- |
+| Frappe Framework | v16+ |
+| ERPNext | v16+ |
+| Python | As supported by Frappe v16 |
+| Database | MariaDB / PostgreSQL as supported by Frappe |
 
-## 📌 Notes
+## License
 
-* Ensure VAT and TRN details are correct
-* Follow structured format strictly
-* Keep API credentials secure
+This project is licensed under the terms specified in the license.txt file.
 
----
+## Maintainer
 
-## 📈 Benefits
+Developed and maintained by ERPGulf.
 
-* Improved VAT compliance
-* Reduced manual work
-* Faster invoice processing
-* Better accuracy & transparency
-
----
-
-### 🧠 References
-
-UAE Federal Tax Authority (FTA)
-
-UBL 2.1 Specification
-
-PEPPOL BIS Billing 3.0
-
-
----
-
-
-
+For implementation, customization, or support, please contact the project maintainer.
