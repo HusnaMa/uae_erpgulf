@@ -262,10 +262,12 @@ doctype_list_js = {
 }
 doc_events = {
     "Sales Invoice": {
-        "on_submit": "uae_erpgulf.uae_erpgulf.test.generate_and_send_einvoice"
+        "on_submit": "uae_erpgulf.uae_erpgulf.test.generate_and_send_einvoice",
+        "before_submit": "uae_erpgulf.uae_erpgulf.validation.validate_accredited_service_provider"
     },
     "Purchase Invoice": {
-        "on_submit": "uae_erpgulf.uae_erpgulf.send_purchase.generate_and_send_einvoice"
+        "on_submit": "uae_erpgulf.uae_erpgulf.send_purchase.generate_and_send_einvoice",
+        "before_submit": "uae_erpgulf.uae_erpgulf.validation.validate_accredited_service_provider"
     }
 }
 fixtures = [
