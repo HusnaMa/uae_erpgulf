@@ -10,9 +10,9 @@ frappe.ui.form.on("Company", {
                 console.log("Server Response:", r);
 
                 if (r.message?.status === "success") {
-                    frappe.msgprint("✔ Token Verified Successfully<br><br>" + r.message.response);
+                    frappe.msgprint(_("✔ Token Verified Successfully<br><br>" + r.message.response));
                 } else {
-                    frappe.msgprint("❌ Error: " + r.message?.message);
+                    frappe.msgprint(_("❌ Error: " + r.message?.message));
                 }
 
                 frm.reload_doc();
@@ -42,7 +42,7 @@ frappe.ui.form.on("Company", {
                         JSON.stringify(r.message.response, null, 2)
                     );
                 } else {
-                    frappe.msgprint("❌ Failed to fetch participant details");
+                    frappe.msgprint(_("❌ Failed to fetch participant details"));
                 }
 
                 frm.reload_doc();
@@ -79,7 +79,7 @@ frappe.ui.form.on("Company", {
                         indicator: "green"
                     });
                 } else {
-                    frappe.msgprint("❌ Failed to fetch access token");
+                    frappe.msgprint(_("❌ Failed to fetch access token"));
                 }
 
                 frm.reload_doc();
@@ -87,7 +87,7 @@ frappe.ui.form.on("Company", {
 
             error: function (err) {
                 console.error(err);
-                frappe.msgprint("❌ Error while fetching access token");
+                frappe.msgprint(_("❌ Error while fetching access token"));
             }
         });
     }
@@ -117,7 +117,7 @@ frappe.ui.form.on('Company', {
                         indicator: "green"
                     });
                 } else {
-                    frappe.msgprint("❌ Failed to subscribe webhook");
+                    frappe.msgprint(_("❌ Failed to subscribe webhook"));
                 }
 
                 frm.reload_doc();
@@ -125,7 +125,7 @@ frappe.ui.form.on('Company', {
 
             error: function (err) {
                 console.error(err);
-                frappe.msgprint("❌ Error while subscribing webhook");
+                frappe.msgprint(_("❌ Error while subscribing webhook"));
             }
         });
     },
@@ -153,7 +153,7 @@ frappe.ui.form.on('Company', {
                         indicator: "blue"
                     });
                 } else {
-                    frappe.msgprint("❌ Failed to fetch webhook details");
+                    frappe.msgprint(_("❌ Failed to fetch webhook details"));
                 }
 
                 frm.reload_doc();
@@ -161,7 +161,7 @@ frappe.ui.form.on('Company', {
 
             error: function (err) {
                 console.error(err);
-                frappe.msgprint("❌ Error while fetching webhook details");
+                frappe.msgprint(_("❌ Error while fetching webhook details"));
             }
         });
     },
@@ -170,7 +170,7 @@ frappe.ui.form.on('Company', {
     custom_webhook_logs: function (frm) {
 
         if (!frm.doc.custom_uuid_of_webhook) {
-            frappe.msgprint("⚠ Please create webhook first");
+            frappe.msgprint(_("⚠ Please create webhook first"));
             return;
         }
 
@@ -193,13 +193,13 @@ frappe.ui.form.on('Company', {
                         indicator: "orange"
                     });
                 } else {
-                    frappe.msgprint("❌ Failed to fetch webhook logs");
+                    frappe.msgprint(_("❌ Failed to fetch webhook logs"));
                 }
             },
 
             error: function (err) {
                 console.error(err);
-                frappe.msgprint("❌ Error while fetching webhook logs");
+                frappe.msgprint(_("❌ Error while fetching webhook logs"));
             }
         });
     }

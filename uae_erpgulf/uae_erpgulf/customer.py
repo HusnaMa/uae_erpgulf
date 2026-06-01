@@ -5,7 +5,7 @@ import requests
 from frappe import _
 
 @frappe.whitelist()
-def custom_lookup_peppol_id_of_participant(company,peppol_id):
+def custom_lookup_peppol_id_of_participant(company:str,peppol_id:str):
     """Lookup PEPPOL ID using Flick API and return details"""
     try:
         url = f"https://sb-ae-api.flick.network/v1/peppol/lookup/{peppol_id}"

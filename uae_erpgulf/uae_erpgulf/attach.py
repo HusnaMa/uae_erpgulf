@@ -7,7 +7,7 @@ from frappe.utils.file_manager import save_file
 
     
 @frappe.whitelist()
-def get_document_xml(doctype,invoice_name):
+def get_document_xml(doctype:str,invoice_name:str):
     """Fetch XML from Flick API and save in Sales Invoice
     """
     try:
@@ -97,7 +97,7 @@ def get_document_xml(doctype,invoice_name):
 
 
 @frappe.whitelist()
-def get_document_pdf(doctype,invoice_name):
+def get_document_pdf(doctype:str,invoice_name:str):
     """Fetch PDF from Flick API and save in Sales Invoice
     """
     try:

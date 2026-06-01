@@ -396,7 +396,7 @@ def validate_receiving_party_fields(
                 "for Free Trade Zone transaction"
             )
     if errors:
-        frappe.throw(_("{}").format("<br>".join(errors)))
+        frappe.throw("<br>".join(errors))
 
 
 def get_item_data(sales_invoice_doc, vat_rate):
@@ -906,7 +906,7 @@ def save_and_attach_invoice_json(invoice_number):
     })
     file_doc.insert(ignore_permissions=True)
 
-    frappe.db.commit()
+    frappe.db.commit()  # nosemgrep: frappe-manual-commit
 
     return {
         "file_name": file_doc.file_name,
@@ -915,7 +915,7 @@ def save_and_attach_invoice_json(invoice_number):
 
 
 @frappe.whitelist()
-def send_invoice_json(invoice_number):
+def send_invoice_json(invoice_number:str):
     """API endpoint to trigger JSON generation and attachment for a given Sales Invoice."""
     if not invoice_number:
         frappe.throw(_("Sales Invoice not provided"))
