@@ -161,6 +161,7 @@ Invoice is sent to the configured API provider
 API provider forwards invoice data to the FTA
 Response is received and stored in ERPNext
 
+![](uae_erpgulf/uae_erpgulf/screenshots/image-4.png)
 ![](uae_erpgulf/uae_erpgulf/screenshots/image-3.png)
 
 ## flowchart TD
@@ -172,7 +173,7 @@ Response is received and stored in ERPNext
     F --> G[Forward to FTA]
     G --> H[Store Response in ERPNext]
 `
-![](uae_erpgulf/uae_erpgulf/screenshots/image-4.png)
+
 ![](uae_erpgulf/uae_erpgulf/screenshots/image.png)
 
 
