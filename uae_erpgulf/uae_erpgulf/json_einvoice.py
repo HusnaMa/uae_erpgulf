@@ -417,15 +417,15 @@ def get_item_data(sales_invoice_doc, vat_rate):
             frappe.throw(_(f"Invoiced quantity must be greater than zero for item {item.item_name}"))
 
         if not item.custom_item_type_codes:
-            frappe.throw(_("Item type (Goods / Services / Both) missing for item {item.item_name}"))
+            frappe.throw(_("Item type (Goods / Services / Both) missing for item{0}", [item.item_name]))
         if item.custom_item_type_codes == "G - Goods" and not item.custom_hs_code_:
-            frappe.throw(_("HS code missing for item {item.item_name}"))
+            frappe.throw(_("HS code missing for item{0}", [item.item_name]))
 
         if item.custom_item_type_codes == "S - Services" and not item.custom_sac_code:
-            frappe.throw(_("SAC code missing for item {item.item_name}"))
+            frappe.throw(_("SAC code missing for item{0}", [item.item_name]))
 
         if item.custom_item_type_codes == "B - Both" and (not item.custom_hs_code_ or not item.custom_sac_code):
-            frappe.throw(_("HS/SAC code missing for item {item.item_name}"))
+            frappe.throw(_("HS/SAC code missing for item{0}", [item.item_name]))
 
         # If any item has an item tax template, enforce it for all
         if any_item_tax_template and not item.item_tax_template:
