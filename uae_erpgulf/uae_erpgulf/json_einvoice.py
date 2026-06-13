@@ -476,7 +476,7 @@ def get_item_data(sales_invoice_doc, vat_rate):
             "line_extension_amount": get_item_line_extension_amount(item),
             "accounting_cost": item.cost_center,
             "name": item.item_name,
-            "description": item.description,
+            "description": item.description or item.item_name,
             "commodity_code": commodity_code,
             "hs_code": hs_code,
             "sac_code": sac_code,
@@ -504,8 +504,11 @@ def get_payment_means(sales_invoice_doc):
     ) == "X1XXXXX : Deemed supply transaction":
         return None
 
-    payment_option = sales_invoice_doc.custom_payment_means_codes
-
+    payment_option = frappe.db.get_value(
+        'Mode of Payment',
+        sales_invoice_doc.mode_of_payment,
+        'custom_payment_means_codes'
+    )
     if not payment_option:
         frappe.throw(_("Payment means type code (IBT-081) is mandatory"))
     payment_code, payment_name = payment_option.split(" - ", 1)
@@ -611,7 +614,11 @@ def get_payment_means(sales_invoice_doc):
 
         # 2. Get custom payment means code (stored in MoP)
         pm_code = mop.get("custom_payment_means_codes") or ""
-
+        payment_code = ""
+        payment_option = ""
+        if pm_code and ' - ' in pm_code:
+            payment_option = pm_code.split(' - ')[1]
+            payment_code = pm_code.split(' - ')[0]
         # 3. Get first account under Mode of Payment → Accounts child table
         if not mop.accounts:
             continue
@@ -625,8 +632,8 @@ def get_payment_means(sales_invoice_doc):
         # UAE JSON construction
         # -------------------------
         payment_means_entry = {
-            "payment_means_code": pm_code,
-            "payment_means_code_name": mop.mode_of_payment,
+            "payment_means_code": payment_code,
+            "payment_means_code_name": payment_option,
             "payee_financial_account": {
                 "id": acc.account_number,
                 "id_scheme_id": "IBAN" if acc.account_type == "Bank" else "OTH",
@@ -650,44 +657,66 @@ def get_payment_means(sales_invoice_doc):
     return payment_means_list
 
 def add_credit_note_details(invoice_doc, invoice_json):
-    """
-    Adds credit note reason code & reason into JSON
-    Handles:
-    - '01-Return' format
-    - Separate custom reason field
-    - Default fallback
-    """
-
+    """Adds credit note reason code and reason to the invoice JSON if the document is a credit note with reason specified."""
     if not invoice_doc.is_return:
         return invoice_json
 
-    # Default mapping (fallback)
-    REASON_MAP = {
-        "01": "Return",
-        "02": "Discount",
-        "03": "Pricing Error",
-        "04": "Correction"
-    }
+    raw_value = invoice_doc.custom_credit_note_reason_code 
 
-    raw_value = invoice_doc.custom_credit_note_reason_code or "01-Return"
-
-    # Split code and reason
+    # Split code and reason from "DL8.61.1.A-Cancellation" format
     if "-" in raw_value:
-        code, reason = raw_value.split("-", 1)
+        parts = raw_value.split("-", 1)  # split only on FIRST "-"
+        code = parts[0].strip()          # "DL8.61.1.A"
+        reason = parts[1].strip()        # "Cancellation"
     else:
-        code = raw_value
-        reason = REASON_MAP.get(code, "Return of goods")
+        code = raw_value.strip()
+        reason = raw_value.strip()
 
-    # Override with custom text field if provided
-    final_reason = invoice_doc.custom_credit_note_reason_code or reason
-
-    # Update JSON
     invoice_json.update({
-        "credit_note_reason_code": code.strip(),
-        "credit_note_reason": final_reason.strip()
+        "credit_note_reason_code": code,    # "DL8.61.1.A"
+        "credit_note_reason": reason        # "Cancellation"
     })
-
+    
     return invoice_json
+# def add_credit_note_details(invoice_doc, invoice_json):
+#     """
+#     Adds credit note reason code & reason into JSON
+#     Handles:
+#     - '01-Return' format
+#     - Separate custom reason field
+#     - Default fallback
+#     """
+
+#     if not invoice_doc.is_return:
+#         return invoice_json
+
+#     # Default mapping (fallback)
+#     REASON_MAP = {
+#         "01": "Return",
+#         "02": "Discount",
+#         "03": "Pricing Error",
+#         "04": "Correction"
+#     }
+
+#     raw_value = invoice_doc.custom_credit_note_reason_code or ""
+
+#     # Split code and reason
+#     if "-" in raw_value:
+#         code, reason = raw_value.split("-", 0)
+#     else:
+#         code = raw_value
+#         reason = REASON_MAP.get(code, "Return of goods")
+
+#     # Override with custom text field if provided
+#     final_reason = invoice_doc.custom_credit_note_reason_code or reason
+
+#     # Update JSON
+#     invoice_json.update({
+#         "credit_note_reason_code": code.strip(),
+#         "credit_note_reason": final_reason.strip()
+#     })
+
+#     return invoice_json
 
 def build_uae_invoice_json(invoice_number):
     """Builds the UAE / PEPPOL compliant JSON invoice payload from the Sales Invoice document."""
@@ -774,7 +803,18 @@ def build_uae_invoice_json(invoice_number):
 
     
     issue_date = sales_invoice_doc.posting_date
+    document_references = {}
 
+    if sales_invoice_doc.is_return and sales_invoice_doc.return_against:
+        original_invoice = frappe.get_doc("Sales Invoice", sales_invoice_doc.return_against)
+        document_references = {
+            "billing_reference": {
+                "invoice_document_reference": {
+                    "id": original_invoice.name,
+                    "issue_date": str(original_invoice.posting_date)
+                }
+            }
+        }
     invoice = {
         "document_identifier": sales_invoice_doc.name,
         "issue_date": str(sales_invoice_doc.posting_date),
@@ -795,13 +835,8 @@ def build_uae_invoice_json(invoice_number):
         #     "sales_order_id": "SO-001/23"
         # },
 
-        "document_references": {
-            
-            "invoice_document_reference": {
-                "id": str(invoice_number),
-                "issue_date": str(sales_invoice_doc.posting_date)
-            }
-        },
+        
+        "document_references": document_references,
         # "other_references": {
         #     "despatch_document_reference": "DESP-2025-001",
         #     "receipt_document_reference": "REC-2025-001",

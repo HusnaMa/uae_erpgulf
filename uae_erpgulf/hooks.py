@@ -251,13 +251,17 @@ app_license = "mit"
 # ignore_translatable_strings_from = []
 
 doctype_js = {
-    "Sales Invoice": "public/js/sales_invoice.js",
+    "Sales Invoice":[ "public/js/sales_invoice.js",
+                        "public/js/tooltip.js",
+                ],
     "Company":"public/js/company.js",
-    "Purchase Invoice":"public/js/purchase.js",
+    "Purchase Invoice":["public/js/purchase.js",
+                        "public/js/tooltip_pos.js",
+                ]
     
 }
 doctype_list_js = {
-    "Sales Invoice": "public/js/bulk_submit.js",
+    "Sales Invoice": "public/js/bulk_submit.js",         
     "Purchase Invoice": "public/js/bulk_submit_pur.js"
 }
 doc_events = {
@@ -278,3 +282,11 @@ fixtures = [
         ]
     }
 ]
+scheduler_events = {
+    "cron": {
+         "* * * * *": [
+            "uae_erpgulf.uae_erpgulf.webhook.update_webhook_logs"
+        ]
+    }
+}
+

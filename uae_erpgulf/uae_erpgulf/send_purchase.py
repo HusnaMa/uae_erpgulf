@@ -80,12 +80,53 @@ def send_invoice_to_flick(doc, method=None):
         try:
             response_data = response.json()
         except Exception:
-            response_data = response.text
+            response_data = {}
 
-        frappe.msgprint(
-            f"<b>Status:</b> {response.status_code}<br><br>"
-            f"<b>Response:</b><br>{response_data}"
+        data = response_data.get("data", {})
+        parsed = data.get("parsed", {})
+
+        html = """
+        <style>
+            .flick-table {{ border-collapse: collapse; width: 100%; font-size: 13px; }}
+            .flick-table th, .flick-table td {{ border: 1px solid #d1d8dd !important; padding: 8px 12px; text-align: left; }}
+            .flick-table thead tr {{ background-color: #f0f4f7; }}
+            .flick-table tbody tr:nth-child(even) {{ background-color: #f9f9f9; }}
+        </style>
+        <table class="flick-table">
+            <thead>
+                <tr><th>Field</th><th>Value</th></tr>
+            </thead>
+            <tbody>
+                <tr><td><b>API Status</b></td><td>{api_status}</td></tr>
+                <tr><td><b>Message</b></td><td>{message}</td></tr>
+                <tr><td><b>Document ID</b></td><td>{doc_id}</td></tr>
+                <tr><td><b>Direction</b></td><td>{direction}</td></tr>
+                <tr><td><b>Document Identifier</b></td><td>{doc_identifier}</td></tr>
+                <tr><td><b>Exchange Status</b></td><td>{exchange_status}</td></tr>
+                <tr><td><b>Reporting Status</b></td><td>{reporting_status}</td></tr>
+                <tr><td><b>Reporting Reference</b></td><td>{reporting_reference}</td></tr>
+                <tr><td><b>Seller Name</b></td><td>{seller_name}</td></tr>
+                <tr><td><b>Buyer Name</b></td><td>{buyer_name}</td></tr>
+                <tr><td><b>Payable Amount</b></td><td>{payable_amount}</td></tr>
+                <tr><td><b>Issue Date</b></td><td>{issue_date}</td></tr>
+            </tbody>
+        </table>
+        """.format(
+            api_status=response_data.get("status", "-"),
+            message=response_data.get("message", "-"),
+            doc_id=data.get("id", "-"),
+            direction=data.get("direction", "-"),
+            doc_identifier=data.get("document_identifier", "-"),
+            exchange_status=data.get("exchange_status", "-"),
+            reporting_status=data.get("reporting_status", "-"),
+            reporting_reference=data.get("reporting_reference", "-"),
+            seller_name=parsed.get("seller_name", "-"),
+            buyer_name=parsed.get("buyer_name", "-"),
+            payable_amount=parsed.get("payable_amount", "-"),
+            issue_date=parsed.get("issue_date", "-")
         )
+
+        frappe.msgprint(html, title="Simulated Incoming Invoice", wide=True)
         return response.status_code, response_data
         
     except Exception:
@@ -166,9 +207,9 @@ def generate_and_send_einvoice(doc: Union[Document, str], method: Optional[str] 
                 status=invoice_status,
                 submit_response=response_text,
             )
-        frappe.msgprint(
-            _("Flick Response Stored. Status: {0}").format(invoice_status)
-        )
+        # frappe.msgprint(
+        #     _("Flick Response Stored. Status: {0}").format(invoice_status)
+        # )
 
     except Exception:
         frappe.log_error(frappe.get_traceback(), "UAE eInvoice Submit Error")
@@ -274,8 +315,8 @@ def get_document_status(invoice_name: str):
             data = response_json.get("data", {})
             reporting_status = data.get("reporting_status")
             sales_invoice_doc.db_set(
-                "custom_submit_response",
-                json.dumps(response_json, indent=2)
+                "custom_document_status_response",
+                json.dumps(response_json)
             )
             if reporting_status:
                 sales_invoice_doc.db_set(

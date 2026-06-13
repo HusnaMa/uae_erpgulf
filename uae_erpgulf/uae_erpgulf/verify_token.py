@@ -41,7 +41,11 @@ def verify_flick_token(company:str):
     try:
         url = f"{base_url}/v1/auth/verify"
         response = requests.get(url, headers=headers)
-        response_text = response.text
+       
+        try:
+            response_text = json.dumps(response.json())  # compact clean JSON string
+        except Exception:
+            response_text = response.text 
         doc.custom_token_response = response_text # nosemgrep: frappe-monkey-patching-not-allowed
         doc.save(ignore_permissions=True)
         return {
@@ -87,7 +91,7 @@ def get_participant_details(company:str):
 
     response = requests.get(url, headers=headers)
     data = response.json()
-    company_doc.custom_participant_details_response = json.dumps(data, indent=4)
+    company_doc.custom_participant_details_response = json.dumps(data)
     company_doc.save(ignore_permissions=True)
     return {
         "status": "success",
@@ -124,7 +128,7 @@ def get_flick_access_token(company:str):
         response = requests.post(url, headers=headers, json=payload)
         response.raise_for_status()  # raises error for bad responses
         response_json = response.json()
-        frappe.msgprint(f"Token Response: {response_json}")
+        # frappe.msgprint(f"Token Response: {response_json}")
         access_token = response_json.get("access_token")
 
         if not access_token:
@@ -229,8 +233,8 @@ def get_document_status(invoice_name: str):
             data = response_json.get("data", {})
             reporting_status = data.get("reporting_status")
             sales_invoice_doc.db_set(
-                "custom_submit_response",
-                json.dumps(response_json, indent=2)
+                "custom_document_status_response",
+                json.dumps(response_json)
             )
             if reporting_status:
                 sales_invoice_doc.db_set(

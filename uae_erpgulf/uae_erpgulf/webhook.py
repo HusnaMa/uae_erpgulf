@@ -7,10 +7,11 @@ from datetime import timedelta
 from uae_erpgulf.uae_erpgulf.verify_token import get_valid_flick_token
 
 
-@frappe.whitelist(allow_guest=False)
-def flick_webhook_listener(): # nosemgrep: frappe-semgrep-rules.rules.security.guest-whitelisted-method
+@frappe.whitelist(allow_guest=True)# nosemgrep: frappe-semgrep-rules.rules.security.guest-whitelisted-method
+def flick_webhook_listener(): 
     """Listener for Flick API webhooks. Logs incoming data and updates invoice status."""
     try:
+        
         raw_data = frappe.request.get_data(as_text=True)
         data = json.loads(raw_data)
 
@@ -91,7 +92,25 @@ def flick_webhook_listener(): # nosemgrep: frappe-semgrep-rules.rules.security.g
             "processed": False
         }
 
+import frappe
 
+def update_webhook_logs():
+    companies = frappe.get_all(
+        "Company",
+        filters={
+            "custom_uuid_of_webhook": ["is", "set"]
+        },
+        pluck="name"
+    )
+
+    for company in companies:
+        try:
+            get_webhook_deliveries(company)
+        except Exception:
+            frappe.log_error(
+                frappe.get_traceback(),
+                f"Webhook Log Update Failed - {company}"
+            )
 
 @frappe.whitelist(allow_guest=False)
 def register_flick_webhook(company: str = None):
@@ -120,7 +139,7 @@ def register_flick_webhook(company: str = None):
         frappe.throw(_("Both X-Flick Auth Key and Access Token are missing in Company"))
         
     endpoint = frappe.utils.get_url(
-    "/api/method/uae_erpgulf.uae_erpgulf.webhook.flick_webhook_listener"
+        "/api/method/uae_erpgulf.uae_erpgulf.webhook.flick_webhook_listener"
         )
     payload = {
         "name": "ERPNext Webhook",
@@ -149,8 +168,7 @@ def register_flick_webhook(company: str = None):
     except Exception:
         response_data = {"raw_response": response.text}
 
-    # ✅ Save to Company field
-    company_doc.custom_webhook_subscription_response = json.dumps(response_data, indent=2)
+    company_doc.custom_webhook_subscription_response = json.dumps(response_data)
     if response_data.get("data") and response_data["data"].get("uuid"):
         company_doc.custom_uuid_of_webhook = response_data["data"]["uuid"]
     if response_data.get("data") and response_data["data"].get("secret"):
@@ -195,8 +213,7 @@ def custom_get_subscription(company: str = None):
     except Exception:
         response_data = {"raw_response": response.text}
 
-    # ✅ Save response in Company
-    company_doc.custom_get_subscription_response = json.dumps(response_data, indent=2)
+    company_doc.custom_get_subscription_response = json.dumps(response_data)
     company_doc.save(ignore_permissions=True)
 
     return response_data
@@ -229,11 +246,17 @@ def get_webhook_deliveries(company: str = None):
     response = requests.get(url, headers=headers)
 
     try:
-        data = response.json()
+        response_data = response.json()
     except Exception:
-        data = {"raw_response": response.text}
+        response_data = {"raw_response": response.text}
 
-    company_doc.custom_webhook_delivery_logs = json.dumps(data, indent=2)
-    company_doc.save(ignore_permissions=True)
+    frappe.db.set_value(
+        "Company",
+        company_doc.name,
+        "custom_webhook_delivery_logs",
+        json.dumps(response_data),
+        update_modified=False
+    )
+    # company_doc.save(ignore_permissions=True)
 
-    return data
+    return response_data

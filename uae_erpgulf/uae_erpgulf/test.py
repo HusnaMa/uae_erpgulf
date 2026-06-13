@@ -84,11 +84,53 @@ def send_invoice_to_flick(doc, method=None):
             response_data = response.json()
         except Exception:
             response_data = response.text
+        data = response_data.get("data", {})
 
-        frappe.msgprint(
-            f"<b>Status:</b> {response.status_code}<br><br>"
-            f"<b>Response:</b><br>{response_data}"
-        )
+        html = """
+            <table border="1" cellpadding="8" cellspacing="0" 
+                style="border-collapse:collapse;width:100%;font-size:13px;">
+                <thead>
+                    <tr style="background-color:#f0f4f7;">
+                        <th style="padding:8px 12px;text-align:left;border:1px solid #d1d8dd;">Field</th>
+                        <th style="padding:8px 12px;text-align:left;border:1px solid #d1d8dd;">Value</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td style="padding:8px 12px;border:1px solid #d1d8dd;"><b>API Status</b></td>
+                        <td style="padding:8px 12px;border:1px solid #d1d8dd;">{api_status}</td>
+                    </tr>
+                    <tr style="background-color:#f9f9f9;">
+                        <td style="padding:8px 12px;border:1px solid #d1d8dd;"><b>Message</b></td>
+                        <td style="padding:8px 12px;border:1px solid #d1d8dd;">{message}</td>
+                    </tr>
+                    <tr>
+                        <td style="padding:8px 12px;border:1px solid #d1d8dd;"><b>Document ID</b></td>
+                        <td style="padding:8px 12px;border:1px solid #d1d8dd;">{doc_id}</td>
+                    </tr>
+                    <tr style="background-color:#f9f9f9;">
+                        <td style="padding:8px 12px;border:1px solid #d1d8dd;"><b>Processing Status</b></td>
+                        <td style="padding:8px 12px;border:1px solid #d1d8dd;">{proc_status}</td>
+                    </tr>
+                    <tr>
+                        <td style="padding:8px 12px;border:1px solid #d1d8dd;"><b>Reporting Status</b></td>
+                        <td style="padding:8px 12px;border:1px solid #d1d8dd;">{rep_status}</td>
+                    </tr>
+                </tbody>
+            </table>
+            """.format(
+                api_status=response_data.get('status', '-'),
+                message=response_data.get('message', '-'),
+                doc_id=data.get('id', '-'),
+                proc_status=data.get('status', '-'),
+                rep_status=data.get('reporting_status', '-')
+            )
+
+        frappe.msgprint(html, title="Flick Response", wide=True)
+
+
+    
+        
         return response.status_code, response_data
     except Exception:
         frappe.log_error(frappe.get_traceback(), "Flick API Error")
@@ -168,9 +210,9 @@ def generate_and_send_einvoice(doc: Union[Document, str], method: Optional[str] 
                 status=invoice_status,
                 submit_response=response_text,
             )
-        frappe.msgprint(
-            _("Flick Response Stored. Status: {0}").format(invoice_status)
-        )
+        # frappe.msgprint(
+        #     _("Flick Response Stored. Status: {0}").format(invoice_status)
+        # )
 
     except Exception:
         frappe.log_error(frappe.get_traceback(), "UAE eInvoice Submit Error")

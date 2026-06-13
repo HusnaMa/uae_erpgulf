@@ -666,43 +666,26 @@ def get_payment_means(purchase_invoice_doc):
     return payment_means_list
 
 def add_credit_note_details(invoice_doc, invoice_json):
-    """
-    Adds credit note reason code & reason into JSON
-    Handles:
-    - '01-Return' format
-    - Separate custom reason field
-    - Default fallback
-    """
-
+    """Adds credit note reason code and reason to the invoice JSON if the document is a credit note."""
     if not invoice_doc.is_return:
         return invoice_json
 
-    # Default mapping (fallback)
-    REASON_MAP = {
-        "01": "Return",
-        "02": "Discount",
-        "03": "Pricing Error",
-        "04": "Correction"
-    }
+    raw_value = invoice_doc.custom_credit_note_reason_code 
 
-    raw_value = invoice_doc.custom_credit_note_reason_code or "01-Return"
-
-    # Split code and reason
+    # Split code and reason from "DL8.61.1.A-Cancellation" format
     if "-" in raw_value:
-        code, reason = raw_value.split("-", 1)
+        parts = raw_value.split("-", 1)  # split only on FIRST "-"
+        code = parts[0].strip()          # "DL8.61.1.A"
+        reason = parts[1].strip()        # "Cancellation"
     else:
-        code = raw_value
-        reason = REASON_MAP.get(code, "Return of goods")
+        code = raw_value.strip()
+        reason = raw_value.strip()
 
-    # Override with custom text field if provided
-    final_reason = invoice_doc.custom_credit_note_reason_code or reason
-
-    # Update JSON
     invoice_json.update({
-        "credit_note_reason_code": code.strip(),
-        "credit_note_reason": final_reason.strip()
+        "credit_note_reason_code": code,    # "DL8.61.1.A"
+        "credit_note_reason": reason        # "Cancellation"
     })
-
+    
     return invoice_json
 
 def build_uae_invoice_json(invoice_number):
