@@ -693,7 +693,10 @@ def build_uae_invoice_json(invoice_number):
     sales_invoice_doc = frappe.get_doc("Purchase Invoice", invoice_number)
     company_doc = frappe.get_doc("Company", sales_invoice_doc.company)
     if company_doc.custom_uae_einvoice_enabled !=1 :
-        frappe.throw(_("UAE E-invoicing not Enabled....pls enable to submit PEPPOL"))
+        frappe.msgprint(_("UAE E-invoicing not Enabled....pls enable to submit PEPPOL"))
+        pass
+    if sales_invoice_doc.custom_submit_to_fta!=1 :
+        frappe.msgprint(_("Submit to FTA not Enabled....pls enable to submit PEPPOL"))
         pass
     customer_doc = frappe.get_doc("Supplier", sales_invoice_doc.supplier)
     address_data = None
