@@ -7,7 +7,8 @@
  "field_order": [
   "document_id",
   "incoming_invoice_file",
-  "status"
+  "status",
+  "submit_response"
  ],
  "fields": [
   {
@@ -26,12 +27,17 @@
    "fieldtype": "Data",
    "label": "Status",
    "read_only": 1
+  },
+  {
+   "fieldname": "submit_response",
+   "fieldtype": "Small Text",
+   "label": "Submit Response"
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2026-06-17 17:54:23.188652",
+ "modified": "2026-06-18 10:47:51.939813",
  "modified_by": "Administrator",
  "module": "uae_erpgulf",
  "name": "UAE Incoming Invoices",

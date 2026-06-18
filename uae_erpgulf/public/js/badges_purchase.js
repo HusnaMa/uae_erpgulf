@@ -25,13 +25,13 @@ frappe.ui.form.on('Purchase Invoice', {
         else if (eInvoiceStatus.toUpperCase() === 'SUCCESS') {
 
             if (reportingStatus.toUpperCase() === 'REPORTED') {
-                badgeHtml = '<div class="uae-badge-container"><img src="/assets/uae_erpgulf/js/badges/FATA-reported.png" alt="Reported" class="uae-badge" width="110" height="110" style="margin-top: -5px; margin-left: 230px;"></div>';
+                badgeHtml = '<div class="uae-badge-container"><img src="/assets/uae_erpgulf/js/badges/FATA-reported.png" alt="Reported" class="uae-badge" width="150" height="150" style="margin-top: -5px; margin-left: 230px;"></div>';
 
             } else if (reportingStatus.toUpperCase() === 'NOT REPORTED') {
-                badgeHtml = '<div class="uae-badge-container"><img src="/assets/uae_erpgulf/js/badges/FTA-not-reported.png" alt="Not Reported" class="uae-badge" width="110" height="110" style="margin-top: -5px; margin-left: 230px;"></div>';
+                badgeHtml = '<div class="uae-badge-container"><img src="/assets/uae_erpgulf/js/badges/FTA-not-reported.png" alt="Not Reported" class="uae-badge" width="150" height="150" style="margin-top: -5px; margin-left: 230px;"></div>';
 
             } else if (reportingStatus.toUpperCase() === 'PENDING') {
-                badgeHtml = '<div class="uae-badge-container"><img src="/assets/uae_erpgulf/js/badges/FTA-pending.png" alt="Pending" class="uae-badge" width="110" height="110" style="margin-top: -5px; margin-left: 230px;"></div>';
+                badgeHtml = '<div class="uae-badge-container"><img src="/assets/uae_erpgulf/js/badges/FTA-pending.png" alt="Pending" class="uae-badge" width="150" height="150" style="margin-top: -5px; margin-left: 230px;"></div>';
             }
         }
 

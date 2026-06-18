@@ -14,25 +14,11 @@ def validate_accredited_service_provider(doc, method=None):
             "Selected Accredited Service Provider must be Flick Network L.L.C for flick api integration."
         ))
 
-def validate_uae_fields(doc, method=None):
+
     
     # Validation 1: If Invoice out of scope of tax is checked,
     # VAT Category must be "O - Not subject to VAT"
-    if doc.custom_invoice_out_of_scope_of_tax:
-        if doc.custom_vat_category != "O - Not subject to VAT":
-            frappe.throw(
-                "If <b>Invoice out of scope of tax</b> is checked, "
-                "<b>VAT Category</b> must be <b>O - Not subject to VAT</b>."
-            )
 
-    # Validation 2: If Credit note related to goods or services out of scope is checked,
-    # is_return must be 1
-    if doc.custom_credit_note_related_to_goods_or_services_out_of_scope:
-        if not doc.is_return:
-            frappe.throw(
-                "If <b>Credit note related to goods or services (out of scope)</b> is checked, "
-                "the invoice must be a <b>Return / Credit Note</b> (is_return must be enabled)."
-            )
 
 def success_log(
     title=None,

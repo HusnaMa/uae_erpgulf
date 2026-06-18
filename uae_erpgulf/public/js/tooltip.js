@@ -17,14 +17,6 @@ frappe.ui.form.on('Sales Invoice', {
                 text: "A flag-based code where each position activates a special transaction type. Set a position to '1' to enable it; leave as 'X' if not applicable. Multiple flags can be combined.",
                 url: 'https://docs.claudion.com/Claudion-Docs/Field%20Reference'
             },
-            'custom_invoice_out_of_scope_of_tax': {
-                text: 'Check this if the invoice is out of scope of VAT. This means the transaction is not subject to UAE VAT regulations.',
-                url: 'https://docs.claudion.com/Claudion-Docs/Field%20Reference'
-            },
-            'custom_credit_note_related_to_goods_or_services_out_of_scope': {
-                text: 'Check this if the credit note is related to goods or services that are out of scope of VAT.',
-                url: 'https://docs.claudion.com/Claudion-Docs/Field%20Reference'
-            },
             'custom_credit_note_reason_code': {
                 text: 'Specifies the reason for issuing the credit note. Select the appropriate code that reflects the purpose of the credit note (e.g., cancellation, discount, return of goods).',
                 url: 'https://docs.claudion.com/Claudion-Docs/Field%20Reference'

@@ -183,9 +183,9 @@ def get_invoice_type_code(sales_invoice_doc):
     """
     if sales_invoice_doc.is_return == 1:
         return "381"
-    if sales_invoice_doc.custom_credit_note_related_to_goods_or_services_out_of_scope == 1:
+    if sales_invoice_doc.is_return == 1 and sales_invoice_doc.custom_vat_category == "O - Not subject to VAT":
         return "81"
-    if sales_invoice_doc.custom_invoice_out_of_scope_of_tax == 1:
+    if sales_invoice_doc.custom_vat_category == "O - Not subject to VAT":
         return "480"
     return "380"
 
@@ -195,7 +195,7 @@ def get_due_date(sales_invoice_doc, issue_date):
     """
     if sales_invoice_doc.is_return == 1:
         return None
-    if sales_invoice_doc.custom_credit_note_related_to_goods_or_services_out_of_scope == 1:
+    if sales_invoice_doc.is_return == 1 and sales_invoice_doc.custom_vat_category == "O - Not subject to VAT":
         return None
     if getattr(sales_invoice_doc, "custom_invoice_transaction_type_code", None) == "X1XXXXX : Deemed supply transaction":
         return None
@@ -283,7 +283,7 @@ def get_tax_point_date(sales_invoice_doc):
     """
     if sales_invoice_doc.is_return == 1:
         return None
-    if sales_invoice_doc.custom_credit_note_related_to_goods_or_services_out_of_scope == 1:
+    if sales_invoice_doc.is_return == 1 and sales_invoice_doc.custom_vat_category == "O - Not subject to VAT":
         return None
     if not sales_invoice_doc.due_date:
         return None
@@ -350,8 +350,8 @@ def validate_receiving_party_fields(
     """Validates receiving party fields based on IBF-14 / IBR-135-ae and related rules."""
     errors = []
 
-    is_credit_note = sales_invoice_doc.is_return == 1
-    is_out_of_scope = sales_invoice_doc.custom_invoice_out_of_scope_of_tax == 1
+    is_credit_note = (sales_invoice_doc.is_return == 1)
+    is_out_of_scope =  ( sales_invoice_doc.custom_vat_category == "O - Not subject to VAT")
 
 
     if not customer_doc.customer_name:
@@ -805,16 +805,26 @@ def build_uae_invoice_json(invoice_number):
     issue_date = sales_invoice_doc.posting_date
     document_references = {}
 
-    if sales_invoice_doc.is_return and sales_invoice_doc.return_against:
-        original_invoice = frappe.get_doc("Sales Invoice", sales_invoice_doc.return_against)
-        document_references = {
-            "billing_reference": {
-                "invoice_document_reference": {
-                    "id": original_invoice.name,
-                    "issue_date": str(original_invoice.posting_date)
+    if sales_invoice_doc.is_return:
+        if sales_invoice_doc.return_against:
+            original_invoice = frappe.get_doc("Sales Invoice", sales_invoice_doc.return_against)
+            document_references = {
+                "billing_reference": {
+                    "invoice_document_reference": {
+                        "id": original_invoice.name,
+                        "issue_date": str(original_invoice.posting_date)
+                    }
                 }
             }
-        }
+        elif sales_invoice_doc.custom_return_against_for_uae_einvoice:
+            document_references = {
+                "billing_reference": {
+                    "invoice_document_reference": {
+                        "id": sales_invoice_doc.custom_return_against_for_uae_einvoice,
+                        "issue_date": ""
+                    }
+                }
+            }
     invoice = {
         "document_identifier": sales_invoice_doc.name,
         "issue_date": str(sales_invoice_doc.posting_date),

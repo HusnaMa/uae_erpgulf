@@ -321,7 +321,7 @@ function process_invoices_sequentially(rows, index, results, dialog, frm) {
         method: 'uae_erpgulf.uae_erpgulf.get_purchase_inv.create_purchase_invoice_from_fta',
         args: { docname: docname },
         freeze: true,
-        freeze_message: __(`Importing ${row.document_id}...`),
+        freeze_message: __("Importing {0}...", [row.document_id]),
         callback: function (r) {
             console.log("API response for", docname, ":", r);
 

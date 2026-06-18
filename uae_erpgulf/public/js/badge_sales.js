@@ -32,7 +32,7 @@ frappe.ui.form.on('Sales Invoice', {
 
             if (reportingStatus.toUpperCase() === 'REPORTED') {
                 console.log('SUCCESS - Reported');
-                badgeHtml = '<div class="uae-badge-container"><img src="/assets/uae_erpgulf/js/badges/FATA-reported.png" alt="Reported" class="uae-badge" width="110" height="110" style="margin-top: -5px; margin-left: 230px;"></div>';
+                badgeHtml = '<div class="uae-badge-container"><img src="/assets/uae_erpgulf/js/badges/FATA-reported.png" alt="Reported" class="uae-badge" width="150" height="150" style="margin-top: -5px; margin-left: 230px;"></div>';
 
             } else if (reportingStatus.toUpperCase() === 'NOT REPORTED') {
                 console.log('SUCCESS - Not Reported');

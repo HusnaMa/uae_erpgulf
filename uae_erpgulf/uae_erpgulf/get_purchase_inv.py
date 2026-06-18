@@ -15,7 +15,7 @@ def get_fta_incoming_invoices():
 
 
 @frappe.whitelist()
-def create_purchase_invoice_from_fta(docname):
+def create_purchase_invoice_from_fta(docname: str):
     """
     Read the JSON file from UAE Incoming Invoices doc
     and create a Purchase Invoice from it as Draft
@@ -156,7 +156,22 @@ def create_purchase_invoice_from_fta(docname):
             if pm_code and frappe.db.exists("Custom Field", {"dt": "Purchase Invoice", "fieldname": "custom_payment_means_codes"}):
                 pi.custom_payment_means_codes = pm_code
 
-        # 9. Insert as Draft only — never submit
+        # 9. Insert as Draft only — never 
+        if uae_doc.submit_response:
+            response_data = json.loads(uae_doc.submit_response)
+
+            reporting_status = response_data.get("data", {}).get("reporting_status")
+            invoice_status = (
+                response_data.get("status")
+                or response_data.get("data", {}).get("status")
+            )
+            if reporting_status:
+                pi.custom_reporting_status = reporting_status.title()
+
+            if invoice_status:
+                pi.custom_uae_einvoice_status = invoice_status.title()
+
+    
         pi.flags.ignore_permissions = True
         pi.flags.ignore_mandatory = True
         pi.insert()
