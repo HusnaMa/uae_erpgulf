@@ -61,7 +61,7 @@ function render_cards() {
 
 			let section_div = $(`
 				<div class="col-lg-4">
-					<h4 style="margin-bottom:15px;">${section.title}</h4>
+					<h4 style="margin-bottom:20px; margin-left:60px;">${section.title}</h4>
 					<div class="row inner-row"></div>
 				</div>
 			`);
@@ -100,11 +100,11 @@ function render_cards() {
 							<a href="${url}" style="text-decoration:none; color:inherit;">
 								<div style="
 									background:#fff;
-									padding:18px;
-									border-radius:10px;
+									padding:19px;
+									border-radius:12px;
 									box-shadow:0 2px 6px rgba(0,0,0,0.1);
 									text-align:center;
-									margin-bottom:12px;
+									margin-bottom:15px;
 								">
 									<h5>${card.label}</h5>
 									<p>${section.title}</p>
