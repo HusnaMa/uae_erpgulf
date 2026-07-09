@@ -59,10 +59,24 @@ function render_cards() {
 
 		sections.slice(i, i + 3).forEach(section => {
 
+			// let section_div = $(`
+			// 	<div class="col-lg-4">
+			// 		<h4 style="margin-bottom:20px; margin-left:60px;">${section.title}</h4>
+			// 		<div class="row inner-row"></div>
+			// 	</div>
+			// `);
 			let section_div = $(`
 				<div class="col-lg-4">
-					<h4 style="margin-bottom:20px; margin-left:60px;">${section.title}</h4>
-					<div class="row inner-row"></div>
+					<h4 style="
+						text-align: center;
+						margin-top:25px;
+						margin-bottom: 20px;
+						font-weight: 600;
+					">
+						${section.title}
+					</h4>
+
+					<div class="row inner-row justify-content-center"></div>
 				</div>
 			`);
 
