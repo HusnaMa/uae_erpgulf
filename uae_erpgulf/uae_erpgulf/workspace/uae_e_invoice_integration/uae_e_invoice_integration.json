@@ -62,9 +62,48 @@
    "link_type": "Report",
    "onboard": 0,
    "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "UAE E-Invoice Integration Doctypes",
+   "link_count": 0,
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Card Break"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "UAE E-Invoice Webhook Logs",
+   "link_count": 0,
+   "link_to": "UAE E-Invoice Webhook Logs",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "UAE Incoming Invoices",
+   "link_count": 0,
+   "link_to": "UAE Incoming Invoices",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "UAE E-invoicing success log",
+   "link_count": 0,
+   "link_to": "UAE E-invoicing success log",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
   }
  ],
- "modified": "2026-05-06 10:41:19.697671",
+ "modified": "2026-07-15 12:09:48.833589",
  "modified_by": "Administrator",
  "module": "uae_erpgulf",
  "name": "UAE E-Invoice Integration",
